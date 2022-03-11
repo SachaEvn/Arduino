@@ -85,3 +85,6 @@ void loop(){
     }
     
   }
+
+  // on mesure environ au bout d'une minute
+  // on mesure environ au bout de trois minutes
