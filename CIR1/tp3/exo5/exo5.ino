@@ -9,7 +9,11 @@ int h = 0;
 int m = 0;
 int s = 0;
 int dec = 0;
+long startTime;
+long currentTime;
+long millisTime;
 bool isPress = false;
+
 void pressed(){
   
   isPress = !isPress;
@@ -31,37 +35,19 @@ void loop(){
     //rouge -> démarre et reprends après la pause
     //orange -> reset le chrono
     //vert -> affiche sur une deuxieme ligne le temps mesuré par millis vs par le chrono
-    /*
-    int h = 0;
-    int m = 0;
-    int s = 0;
-    int dec = 0;
-    */
     bool isPaused = true;
     
     while(true){
       if(digitalRead(btnOrange) == LOW){
-        h = 0;
-        m = 0;
-        s = 0;
-        dec = 0;
         isPaused = true;
       }
       else if(digitalRead(btnRed) == LOW){
-        isPaused = false;
-      }
-      if(isPress){
-        lcd.setCursor(0,1);
-        long millisTime = millis();
-        /*
-        lcd.print("m:"+String(millisTime));
-        lcd.print(" p:"+String(totalChrono));
-        */
-        long currentTime = h*3600+m*60+s;
-        lcd.print("diff(s):"+String(millisTime/1000 - currentTime));
+        if(isPaused == true){
+          isPaused = false;
+          startTime = millis();
+        }
       }
       if(!isPaused){
-        
         dec+=1;
         if(dec%10 == 0 && dec!=0){
           s+=1;
@@ -76,6 +62,29 @@ void loop(){
           }
         }
       }
+      else{
+        h = 0;
+        m = 0;
+        s = 0;
+        dec = 0;
+      }
+      if(isPress && isPaused){
+        lcd.setCursor(0,1);
+        lcd.print("diff(s):"+String(millisTime));
+        millisTime = 0;
+        currentTime = 0;
+        startTime = millis();
+        m = 0;
+        s = 0;
+      }
+      else if(isPress && !isPaused){
+        lcd.setCursor(0,1);
+        millisTime = millis();
+        millisTime = (millisTime -startTime)/1000;
+        currentTime = (h*3600+m*60+s+dec*0.1);
+        lcd.print(millisTime - currentTime);
+      }
+      
       lcd.setCursor(0,0);
       char str[16];
       sprintf(str,"%02d:%02d:%02d:%d",h,m,s,dec);  
@@ -85,6 +94,6 @@ void loop(){
     }
     
   }
-
-  // on mesure environ au bout d'une minute
-  // on mesure environ au bout de trois minutes
+  // notre programme accumule environ 1s de retard par rapport à millis toutes les 10 secondes (comptées par le programme)
+  // on mesure environ 6s de retard au bout d'une minute
+  // on mesure environ 16.5s de retard au bout de trois minutes
